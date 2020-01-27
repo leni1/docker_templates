@@ -1,0 +1,14 @@
+FROM python:2
+
+RUN mkdir -p /app
+WORKDIR /app
+COPY requirements.txt .
+
+# Install pip packages
+RUN pip install -r ./requirements.txt
+
+# Copy the rest of the source code
+COPY . .
+
+# Expose required ports
+EXPOSE 8000
