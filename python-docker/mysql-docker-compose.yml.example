@@ -1,0 +1,44 @@
+version: '3'
+services:
+        db:
+          image: "mysql:8.0"
+          restart: "always"
+          ports:
+            - "3308:3306"
+          volumes:
+            - ./:/path/to/db_volume
+          environment:
+            - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+            - MYSQL_DATABASE=${MYSQL_DATABASE}
+        web_app:
+          image: "web"
+          environment:
+            - DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
+            - SECRET_KEY=${SECRET_KEY}
+            - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+            - MYSQL_DATABASE=${MYSQL_DATABASE}
+          depends_on:
+            - db
+          ports:
+            - "8800:8000"
+          build:
+            context: .
+            dockerfile: Dockerfile
+          command: /usr/local/bin/python manage.py runserver 0.0.0.0:8000
+          volumes:
+            - .:/app
+        manage:
+          build:
+            context: .
+            dockerfile: Dockerfile
+          command: shell_plus --ipython
+          depends_on:
+            - db
+          entrypoint: /usr/local/bin/python /app/manage.py
+          volumes:
+            - .:/app
+          environment:
+            - DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
+            - SECRET_KEY=${SECRET_KEY}
+            - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+            - MYSQL_DATABASE=${MYSQL_DATABASE}
